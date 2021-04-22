@@ -5,23 +5,32 @@ import { format } from "date-fns";
 import theme from "../../theme";
 import { Context as NoteContext } from "../../providers/NoteContext";
 import { Context as AuthContext } from "../../providers/AuthContext";
+import { Picker } from "react-native";
 
-const CreateNote = ({ navigation }) => {
+const CreateNote = ({route, navigation }) => {
+  const {category2} = route.params;
+
   const { createNote } = useContext(NoteContext);
   const { state } = useContext(AuthContext);
   const [title, setTitle] = useState("");
   const [timestamp, setTimestamp] = useState(Date.now());
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState(category2);
+
 
   const handleSaveNote = () => {
     if (!title) {
       setTitle("New note");
-      createNote("New note", content, timestamp, state.user.id);
-    } else createNote(title, content, timestamp, state.user.id);
-
-    navigation.navigate("Home");
+      createNote("New note",category, content, timestamp, state.user.id);
+    } else if(!category){
+      setCategory("Personal");
+      createNote(title,"Personal" , content, timestamp, state.user.id)
+    }
+    else createNote(title, category, content, timestamp, state.user.id);
+    navigation.navigate("Home",{category:category});
   };
 
+  console.log(category2);
   return (
     <View style={styles.container}>
       <View style={styles.iconBar}>
@@ -38,6 +47,15 @@ const CreateNote = ({ navigation }) => {
           onPress={handleSaveNote}
         />
       </View>
+      <Picker
+        selectedValue={category}
+        onChangeText={(itemValue) =>{setCategory(itemValue);}}
+      >
+        <Picker.Item label="Personal" value="Personal" />
+        <Picker.Item label="Work" value="Work" />
+        <Picker.Item label="Ideas" value="Ideas" />
+        <Picker.Item label="List" value="List" />
+      </Picker>
       <TextInput
         mode="flat"
         placeholder="Title"

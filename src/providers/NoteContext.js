@@ -20,6 +20,7 @@ const noteReducer = (state, action) => {
             return {
               ...note,
               title: action.payload.note.title,
+              category: action.payload.note.category,
               content: action.payload.note.content,
               timestamp: action.payload.note.timestamp,
             };
@@ -37,9 +38,10 @@ const noteReducer = (state, action) => {
 const notesRef = firebase.firestore().collection("notes");
 
 // Almacena una nueva nota para el usuario actual
-const createNote = (dispatch) => (title, content, timestamp, author) => {
+const createNote = (dispatch) => (title, category, content, timestamp, author) => {
   const data = {
     title,
+    category,
     content,
     timestamp,
     userId: author,
@@ -56,9 +58,10 @@ const createNote = (dispatch) => (title, content, timestamp, author) => {
 };
 
 // Obtener las notas del usuario
-const getNotes = (dispatch) => (userId) => {
+const getNotes = (dispatch) => (userId,category) => {
   notesRef
     .where("userId", "==", userId)
+    .where("category","==",category)
     .orderBy("timestamp", "desc")
     .onSnapshot(
       (querySnapshot) => {
@@ -119,6 +122,6 @@ export const { Provider, Context } = createDataContext(
   {
     notes: [],
     errorMessage: "",
-    currentNote: { id: "", title: "", content: "", timestamp: "" },
+    currentNote: { id: "", category: "",title: "", content: "", timestamp: "" },
   }
 );
